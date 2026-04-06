@@ -80,6 +80,13 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 - **"salt" OpenType feature**: Stylistic alternates on specific UI elements (badges, captions) create subtle glyph variations that add visual interest.
 - **Variable font precision**: Cereal VF enables continuous weight interpolation, though the design system uses discrete stops at 500, 600, and 700.
 
+### Font Loading Strategy
+- **Display strategy**: `font-display: swap` for Airbnb Cereal VF — text renders immediately in the Circular fallback, swapping when the variable font loads
+- **Preload**: `<link rel="preload" href="airbnb-cereal-vf.woff2" as="font" type="font/woff2" crossorigin>` for the variable font file — a single file covers the full 500–700 weight range
+- **Fallback alignment**: Circular is the primary fallback because it shares similar rounded terminals and warm character with Cereal VF — the swap produces minimal visual disruption. The secondary chain (-apple-system, system-ui, Roboto) provides progressively less similar but universally available alternatives.
+- **OpenType preload**: `"salt"` (stylistic alternates) is embedded in the variable font; available immediately after the primary file loads
+- **Subset**: Latin subset by default; extended character sets loaded on demand for international market listings
+
 ## 4. Component Stylings
 
 ### Buttons
@@ -142,6 +149,19 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 - **Photography density**: Listing cards are packed relatively tightly, but each image is large enough to feel immersive.
 - **Search bar prominence**: The search bar gets maximum vertical space in the header — finding your destination is the primary action.
 
+### Density Modes
+
+Airbnb adapts density based on content context — browsing (discovery) vs. booking (transaction):
+
+| Mode | Vertical Padding | Grid Gap | Use Case |
+|------|-----------------|----------|----------|
+| Discovery (Default) | 48–80px between sections | 24px grid gap | Search results, listing browsing, category exploration |
+| Booking / Transaction | 16–24px between sections | 8–16px | Checkout flow, reservation details, payment forms, host dashboard |
+
+Discovery mode prioritizes visual immersion — large listing photography with generous spacing creates the travel-magazine browsing pace. Booking mode compresses into a transactional density — price breakdowns, date selectors, and guest forms use tight 8–16px spacing. The listing grid itself has its own density: 24px gap between cards on desktop, collapsing to 16px on tablet and 0px (full-bleed cards) on mobile.
+
+**Content-type density rule**: If the user is browsing (looking at listings, exploring categories), use generous discovery spacing. If the user is transacting (booking, paying, managing), use tight transactional spacing. Photography-heavy views always get more breathing room than form-heavy views.
+
 ### Border Radius Scale
 - Subtle (4px): Small links
 - Standard (8px): Buttons, tabs, search elements
@@ -175,7 +195,7 @@ Airbnb is a public accommodation platform — a place where anyone, anywhere sho
 |-------------|-------|--------|-------|
 | `#222222` on `#ffffff` | ~15.4:1 | AAA | Primary text — excellent |
 | `#6a6a6a` on `#ffffff` | ~5.7:1 | AA | Secondary text — passes |
-| `#ff385c` on `#ffffff` | ~3.9:1 | FAILS AA for normal text | Rausch Red must only be used on large text or non-text elements like buttons where the white text on `#222222` carries the readable label |
+| `#ff385c` on `#ffffff` | ~3.5:1 | FAILS AA for normal text | Rausch Red must only be used on large text or non-text elements like buttons where the white text on `#222222` carries the readable label |
 | `#929292` on `#ffffff` | ~3.0:1 | FAILS | Disabled state — acceptable per WCAG 1.4.3 exception for inactive components |
 | `#ffffff` on `#222222` | ~15.4:1 | AAA | White on dark surfaces — excellent |
 | `#428bff` on `#ffffff` | ~3.8:1 | Borderline | Legal links should be underlined to not rely solely on color |
@@ -348,6 +368,16 @@ Airbnb's warm identity translates into dark mode through carefully chosen surfac
 | Shadows | Three-layer at 0.02/0.04/0.1 | `rgba(0,0,0,0.4)` for all three layers | Deeper shadows on dark surfaces |
 
 Warm white surfaces (`#f2f2f2` nav buttons, secondary backgrounds) become `#262626` in dark mode.
+
+**Dark Mode Interactive States**
+
+| State | Property | Light Mode | Dark Mode |
+|-------|----------|------------|-----------|
+| Primary button hover | Background | `#ff385c` (brand accent) | `#ff5a7a` |
+| Circular nav hover | Shadow | `rgba(0,0,0,0.08) 0px 4px 12px` | `rgba(0,0,0,0.3) 0px 4px 12px` |
+| Listing card hover | Shadow | Three-layer at 0.02/0.04/0.1 | Three-layer at 0.1/0.15/0.25 |
+| Heart button hover | Background | `rgba(0,0,0,0.04)` | `rgba(255,255,255,0.08)` |
+| Category pill active | Border-bottom | `2px solid #222222` | `2px solid #e8e8e8` |
 
 ### Container Queries
 

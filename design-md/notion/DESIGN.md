@@ -88,6 +88,13 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - **Warm scaling**: Line height tightens as size increases -- 1.50 at body (16px), 1.23-1.27 at sub-headings, 1.00-1.04 at display. This creates denser, more impactful headlines.
 - **Badge micro-tracking**: The 12px badge text uses positive letter-spacing (0.125px) -- the only positive tracking in the system, creating wider, more legible small text.
 
+### Font Loading Strategy
+- **Display strategy**: `font-display: swap` for NotionInter — text renders immediately in the Inter fallback (nearly identical metrics), swapping when the custom variant loads
+- **Preload**: `<link rel="preload" href="notioninter.woff2" as="font" type="font/woff2" crossorigin>` for weight 400 (most common). Weights 500, 600, 700 load on demand.
+- **Fallback alignment**: Inter is the primary fallback because NotionInter is a modified Inter — the metrics are nearly identical, producing minimal layout shift on swap. This is one of the best fallback chains in modern web design.
+- **OpenType preload**: `"lnum"` and `"locl"` features are embedded in the font file; no additional request needed once the primary file loads
+- **Subset**: Latin subset by default; CJK and extended ranges loaded asynchronously for internationalized workspaces
+
 ## 4. Component Stylings
 
 ### Buttons
@@ -196,6 +203,19 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - **Warm alternation**: White sections alternate with warm white (`#f6f5f4`) sections, creating gentle visual rhythm without harsh color breaks.
 - **Content-first density**: Body text blocks are compact (line-height 1.50) but surrounded by ample margin, creating islands of readable content in a sea of white space.
 
+### Density Modes
+
+Notion's design adapts density based on whether the user is browsing the marketing site or using the product workspace:
+
+| Mode | Vertical Padding | Grid Gap | Use Case |
+|------|-----------------|----------|----------|
+| Marketing (Default) | 64–120px between sections | 24–32px | Landing pages, feature showcases, pricing |
+| Workspace / Product | 4–12px between blocks | 0–8px | Document editor, database views, sidebar navigation |
+
+The marketing site uses the generous vertical rhythm described above. Notion's workspace operates at extreme density — document blocks have 4px vertical margins, database rows use 8px padding, sidebar items use 4px gaps. The warm white (#f6f5f4) section alternation applies only to marketing; the workspace is consistently white or warm white without alternation.
+
+**Content-type density rule**: Marketing pages use generous breathing room to showcase features. Product/workspace interfaces use tight density because users are creating and organizing — every pixel of screen real estate matters. The 8px base unit applies at both densities.
+
 ### Border Radius Scale
 - Micro (4px): Buttons, inputs, functional interactive elements
 - Subtle (5px): Links, list items, menu items
@@ -232,7 +252,7 @@ Notion's design system treats accessibility as a natural extension of its warm, 
 |---------|-------|--------|-------|
 | `rgba(0,0,0,0.95)` on `#ffffff` | ~18:1 | AAA | Primary text -- exceeds all thresholds comfortably |
 | `#615d59` on `#ffffff` | ~5.5:1 | AA | Secondary text -- passes AA for all sizes |
-| `#a39e98` on `#ffffff` | ~3.3:1 | Fails AA | Warm Gray 300 -- suitable only for decorative or non-essential text. Do not use for meaningful labels or body copy. |
+| `#a39e98` on `#ffffff` | ~2.6:1 | Fails AA | Warm Gray 300 -- suitable only for decorative or non-essential text. Do not use for meaningful labels or body copy. |
 | `#0075de` on `#ffffff` | ~4.6:1 | AA large text | Notion Blue CTA -- passes AA for large text (18px+ or 14px bold). CTA buttons at 15px weight 600 may be borderline; pair with sufficient button sizing. |
 | `#097fe8` on `#f2f9ff` | ~4.5:1 | AA large text | Badge text on badge background -- acceptable at badge scale given pill context, but borderline for smaller sizes. |
 
@@ -346,6 +366,16 @@ Notion's interactions follow the same philosophy as its visual design: restraine
 | Notion Blue | `#0075de` | `#0075de` | Blue stays constant across modes |
 | Card shadow opacity | 0.04 max | 0.08-0.1 max | Increased opacity for visibility against dark backgrounds |
 
+**Dark Mode Interactive States**
+
+| State | Property | Light Mode | Dark Mode |
+|-------|----------|------------|-----------|
+| Primary button hover | Background | `#005bab` | `#3399ff` |
+| Secondary button hover | Background | `rgba(0,0,0,0.08)` | `rgba(255,255,255,0.08)` |
+| Card hover | Shadow opacity | 0.04 max layer | 0.10 max layer |
+| Link hover | Color | `#005bab` | `#66b3ff` |
+| Input focus | Border | `1px solid #0075de` | `1px solid #3399ff` |
+
 ### Container Queries
 - Feature cards adapt layout at `@container (min-width: 400px)` -- below this threshold, card content stacks vertically; above, illustration and text sit side-by-side
 - Container queries are preferred over media queries for component-level layout decisions, keeping cards responsive regardless of their placement context
@@ -408,7 +438,7 @@ Notion's interactions follow the same philosophy as its visual design: restraine
 - "Design an alternating section layout: white sections alternate with warm white (#f6f5f4) sections. Each section has 64-80px vertical padding, max-width 1200px centered. Section heading at 48px weight 700, line-height 1.00, letter-spacing -1.5px."
 
 ### Accessibility Prompt
-- "Ensure all interactive elements have visible focus indicators: 2px solid #097fe8 outline with shadow reinforcement. Touch targets are 44x44px minimum on mobile, 36px height minimum on desktop. Use semantic heading hierarchy (h1 > h2 > h3) mapping to visual sizes. Decorative illustrations get alt=''. Product screenshots get descriptive aria-label. Respect prefers-reduced-motion by disabling scale transforms and shadow transitions. Verify color contrast: primary text at ~18:1, secondary at ~5.5:1, avoid #a39e98 for essential content (~3.3:1 fails AA)."
+- "Ensure all interactive elements have visible focus indicators: 2px solid #097fe8 outline with shadow reinforcement. Touch targets are 44x44px minimum on mobile, 36px height minimum on desktop. Use semantic heading hierarchy (h1 > h2 > h3) mapping to visual sizes. Decorative illustrations get alt=''. Product screenshots get descriptive aria-label. Respect prefers-reduced-motion by disabling scale transforms and shadow transitions. Verify color contrast: primary text at ~18:1, secondary at ~5.5:1, avoid #a39e98 for essential content (~2.6:1 fails AA)."
 
 ### Iteration Guide
 1. Always use warm neutrals -- Notion's grays have yellow-brown undertones (#f6f5f4, #31302e, #615d59, #a39e98), never blue-gray
