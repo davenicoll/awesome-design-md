@@ -222,7 +222,95 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - Section alternation: white to warm white (`#f6f5f4`) background shifts
 - No hard section borders -- separation comes from background color changes and spacing
 
-## 7. Responsive Behavior
+## 7. Accessibility
+
+Notion's design system treats accessibility as a natural extension of its warm, approachable philosophy. The same restraint that produces whisper borders and soft shadows also produces clear, readable interfaces that work for everyone. The target is **WCAG 2.2 AA** compliance across all interactive surfaces.
+
+### Color Contrast
+
+| Pairing | Ratio | Rating | Notes |
+|---------|-------|--------|-------|
+| `rgba(0,0,0,0.95)` on `#ffffff` | ~18:1 | AAA | Primary text -- exceeds all thresholds comfortably |
+| `#615d59` on `#ffffff` | ~5.5:1 | AA | Secondary text -- passes AA for all sizes |
+| `#a39e98` on `#ffffff` | ~3.3:1 | Fails AA | Warm Gray 300 -- suitable only for decorative or non-essential text. Do not use for meaningful labels or body copy. |
+| `#0075de` on `#ffffff` | ~4.6:1 | AA large text | Notion Blue CTA -- passes AA for large text (18px+ or 14px bold). CTA buttons at 15px weight 600 may be borderline; pair with sufficient button sizing. |
+| `#097fe8` on `#f2f9ff` | ~4.5:1 | AA large text | Badge text on badge background -- acceptable at badge scale given pill context, but borderline for smaller sizes. |
+
+### Focus System
+- All interactive elements receive visible focus indicators
+- Focus outline: `2px solid` with focus color (`#097fe8`) + shadow level 200 for reinforcement
+- Focus indicators must remain visible on both white (`#ffffff`) and warm white (`#f6f5f4`) backgrounds -- the blue outline + shadow combination ensures this
+- Tab navigation supported throughout all interactive components
+- Focus order follows visual reading order: left-to-right, top-to-bottom
+
+### ARIA Patterns
+- **Buttons**: Native `<button>` elements preferred. Icon-only buttons require `aria-label` describing the action.
+- **Navigation**: Product dropdowns use `aria-expanded` on trigger and `aria-haspopup="true"`. Mobile hamburger menu uses `aria-expanded` and `aria-controls`.
+- **Cards**: Use `<article>` with `aria-labelledby` pointing to the card title. Linked cards wrap the title in the anchor, not the entire card surface.
+- **Workspace Screenshots**: Product screenshots that convey information use `role="img"` with a descriptive `aria-label` summarizing what the screenshot shows.
+- **Feature Illustrations**: Decorative hero illustrations and character art use `alt=""` and `aria-hidden="true"` -- they add warmth, not information.
+
+### Motion Policy
+- `prefers-reduced-motion: reduce` disables the `scale(0.9)` active transform and `scale(1.05)` hover transform on buttons
+- Shadow transitions (hover intensification) are also disabled under reduced motion
+- Page scroll remains unaffected -- reduced motion targets animated transforms and transitions only
+- Implementation: wrap motion-dependent transitions in `@media (prefers-reduced-motion: no-preference) { ... }`
+
+### Touch Target Sizes
+- Mobile: minimum 44x44px touch target on all interactive elements (following WCAG 2.5.8)
+- Desktop: minimum 36px height on clickable elements (buttons, links, nav items)
+- Pill badges used as interactive elements must meet touch target minimums through padding expansion, not visual size increase
+
+### Screen Reader Guidance
+- Heading hierarchy is semantic: a single `<h1>` per page, `<h2>` for major sections, `<h3>` for subsections. The visual hierarchy (64px display, 48px section, 26px sub-heading) maps directly to heading levels.
+- The warm white section alternation (white to `#f6f5f4`) must not be the only structural cue. Each section needs a heading or landmark role so screen reader users perceive the same rhythm sighted users feel through the background color shifts.
+- Long feature card grids use list markup (`<ul>` / `<li>`) so screen readers announce item count and position.
+
+## 8. Interaction Patterns
+
+Notion's interactions follow the same philosophy as its visual design: restrained, warm, and felt rather than flashy. Every state change is subtle -- a gentle shift rather than a dramatic transformation.
+
+### State Machine
+
+| State | Buttons | Cards | Links | Inputs | Badges |
+|-------|---------|-------|-------|--------|--------|
+| **Default** | Solid fill, whisper border | White bg, whisper border, soft shadow | Near-black text, no underline | White bg, `#dddddd` border | `#f2f9ff` bg, `#097fe8` text |
+| **Hover** | Color shift (blue darkens to `#005bab`), scale(1.05) | Shadow intensification, subtle lift | Color shift, underline appears | Border darkens | Slight background darken |
+| **Active** | scale(0.9), darker bg (`#005bab`) | scale(0.98) press effect | Darker color | -- | -- |
+| **Focus** | `2px solid #097fe8` outline + shadow level 200 | `2px solid #097fe8` outline | `2px solid #097fe8` outline | Blue outline ring, shadow | `2px solid #097fe8` outline |
+| **Disabled** | Warm gray `#a39e98` text, reduced opacity (0.5), no pointer events | Muted shadow, reduced contrast | Warm gray text, no underline | `#f6f5f4` bg, `#a39e98` text | Reduced opacity |
+
+### Transitions
+- **Color changes**: `150ms ease` -- fast enough to feel instant, slow enough to feel intentional
+- **Transform and shadow**: `200ms ease` -- slightly longer for spatial changes so the movement reads clearly
+- **All transitions** respect `prefers-reduced-motion`: under reduced motion, state changes are instant (0ms duration) while color shifts remain
+
+### Modals & Overlays
+- Focus trap: keyboard focus cycles within the modal while open, never escaping to background content
+- `Escape` key closes the modal and returns focus to the trigger element
+- Scroll lock: page scroll is disabled while modal is open (`overflow: hidden` on body)
+- Backdrop: `rgba(0,0,0,0.5)` overlay, clicking outside the modal dismisses it
+- Entry/exit: gentle opacity fade, no dramatic scale transforms
+
+### Error States
+- Inline validation messages appear directly below the input field
+- Border color shifts from `#dddddd` to a warm red on invalid fields
+- Error text uses 14px weight 500 in a readable red -- never relies on color alone (an error icon accompanies the message)
+- Errors appear on blur or submit, not on every keystroke
+
+### Loading States
+- Skeleton screens use warm white (`#f6f5f4`) as the base with a subtle shimmer animation
+- Skeleton shapes mirror the content they replace: rounded rectangles for text lines, 12px radius blocks for cards
+- Shimmer uses a left-to-right gradient sweep at `1.5s` duration
+- Under `prefers-reduced-motion`, the shimmer is replaced with a static warm white block
+
+### Empty States
+- A warm, hand-drawn style illustration centered above the message (consistent with Notion's decorative character illustrations)
+- Muted text in warm gray (`#615d59`) at 16px weight 400 explaining what belongs here
+- A single Notion Blue CTA button inviting the user to take the first action
+- No heavy borders or shadows -- the empty state is quiet and inviting, not alarming
+
+## 9. Responsive Behavior
 
 ### Breakpoints
 | Name | Width | Key Changes |
@@ -235,14 +323,35 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 | Desktop | 1200-1440px | Full layout, maximum content width |
 | Large Desktop | >1440px | Centered, generous margins |
 
-### Touch Targets
-- Buttons use comfortable padding (8px-16px vertical)
-- Navigation links at 15px with adequate spacing
-- Pill badges have 8px horizontal padding for tap targets
-- Mobile menu toggle uses standard hamburger button
+### Fluid Typography
+- **Display**: `clamp(2rem, 5vw, 4rem)` -- scales fluidly from 32px on mobile to 64px on desktop, maintaining the compressed letter-spacing proportionally
+- **Section heading**: `clamp(1.5rem, 4vw, 3rem)` -- 24px to 48px, keeping the tight line-height throughout
+- Letter-spacing scales proportionally with font size: the compression ratio stays consistent even as the rendered size changes
+
+### Touch Target Sizes
+- Buttons: minimum 44px height on mobile (8px vertical padding expands to 12px), 36px desktop minimum
+- Navigation links: 44px tap target height on mobile via padding, 15px font with 14px vertical padding
+- Pill badges: 32px minimum height when interactive, expanded via vertical padding
+- Mobile menu toggle: 44x44px minimum
+- Card tap targets: entire card surface is tappable on mobile, minimum 48px vertical content area
+
+### Dark Mode Tokens
+| Token | Light | Dark | Notes |
+|-------|-------|------|-------|
+| Background | `#ffffff` | `#191919` | Warm dark, not pure black |
+| Text primary | `rgba(0,0,0,0.95)` | `rgba(255,255,255,0.9)` | Softened white, matching the light mode philosophy |
+| Text secondary | `#615d59` | `#888888` | Lifted gray for readability on dark surfaces |
+| Warm surface | `#f6f5f4` | `#252525` | Section alternation continues in dark mode |
+| Borders | `rgba(0,0,0,0.1)` | `rgba(255,255,255,0.1)` | Same whisper weight, inverted |
+| Notion Blue | `#0075de` | `#0075de` | Blue stays constant across modes |
+| Card shadow opacity | 0.04 max | 0.08-0.1 max | Increased opacity for visibility against dark backgrounds |
+
+### Container Queries
+- Feature cards adapt layout at `@container (min-width: 400px)` -- below this threshold, card content stacks vertically; above, illustration and text sit side-by-side
+- Container queries are preferred over media queries for component-level layout decisions, keeping cards responsive regardless of their placement context
 
 ### Collapsing Strategy
-- Hero: 64px display -> scales to 40px -> 26px on mobile, maintains proportional letter-spacing
+- Hero: 64px display -> scales fluidly via clamp -> 26px floor on mobile, maintains proportional letter-spacing
 - Navigation: horizontal links + blue CTA -> hamburger menu
 - Feature cards: 3-column -> 2-column -> single column stacked
 - Product screenshots: maintain aspect ratio with responsive images
@@ -256,28 +365,28 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - Product screenshots use responsive images with consistent border radius
 - Full-width warm white sections maintain edge-to-edge treatment
 
-## 8. Accessibility & States
+## 10. Do's and Don'ts
 
-### Focus System
-- All interactive elements receive visible focus indicators
-- Focus outline: `2px solid` with focus color + shadow level 200
-- Tab navigation supported throughout all interactive components
-- High contrast text: near-black on white exceeds WCAG AAA (>14:1 ratio)
+### Do
+- Use warm neutrals with yellow-brown undertones (`#f6f5f4`, `#31302e`, `#615d59`) -- never blue-gray
+- Use `rgba(0,0,0,0.95)` for text, not pure `#000000`
+- Apply whisper borders: `1px solid rgba(0,0,0,0.1)`
+- Use NotionInter with negative letter-spacing at display sizes
+- Enable `"lnum"` and `"locl"` OpenType features on headings
+- Use four weights: 400 (body), 500 (UI), 600 (emphasis), 700 (display)
+- Alternate white and warm white (`#f6f5f4`) sections for rhythm
+- Use Notion Blue (`#0075de`) as the singular accent color
 
-### Interactive States
-- **Default**: Standard appearance with whisper borders
-- **Hover**: Color shift on text, scale(1.05) on buttons, underline on links
-- **Active/Pressed**: scale(0.9) transform, darker background variant
-- **Focus**: Blue outline ring with shadow reinforcement
-- **Disabled**: Warm gray (`#a39e98`) text, reduced opacity
+### Don't
+- Don't use cold grays or blue-tinted neutrals
+- Don't use heavy borders -- `1px` at `rgba(0,0,0,0.1)` maximum
+- Don't use shadows with individual layer opacity above 0.05
+- Don't use pill radius (`9999px`) on action buttons -- pills are for badges only
+- Don't introduce additional saturated colors beyond Notion Blue for core UI
+- Don't skip the warm white section alternation -- it's the visual rhythm
+- Don't use positive letter-spacing except on 12px badge text
 
-### Color Contrast
-- Primary text (rgba(0,0,0,0.95)) on white: ~18:1 ratio
-- Secondary text (#615d59) on white: ~5.5:1 ratio (WCAG AA)
-- Blue CTA (#0075de) on white: ~4.6:1 ratio (WCAG AA for large text)
-- Badge text (#097fe8) on badge bg (#f2f9ff): ~4.5:1 ratio (WCAG AA for large text)
-
-## 9. Agent Prompt Guide
+## 11. Agent Prompt Guide
 
 ### Quick Color Reference
 - Primary CTA: Notion Blue (`#0075de`)
@@ -297,6 +406,9 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - "Build a pill badge: #f2f9ff background, #097fe8 text, 9999px radius, 4px 8px padding, 12px NotionInter weight 600, letter-spacing 0.125px."
 - "Create navigation: white header. NotionInter 15px weight 600 for links, near-black text. Blue pill CTA 'Get Notion free' right-aligned (#0075de bg, white text, 4px radius)."
 - "Design an alternating section layout: white sections alternate with warm white (#f6f5f4) sections. Each section has 64-80px vertical padding, max-width 1200px centered. Section heading at 48px weight 700, line-height 1.00, letter-spacing -1.5px."
+
+### Accessibility Prompt
+- "Ensure all interactive elements have visible focus indicators: 2px solid #097fe8 outline with shadow reinforcement. Touch targets are 44x44px minimum on mobile, 36px height minimum on desktop. Use semantic heading hierarchy (h1 > h2 > h3) mapping to visual sizes. Decorative illustrations get alt=''. Product screenshots get descriptive aria-label. Respect prefers-reduced-motion by disabling scale transforms and shadow transitions. Verify color contrast: primary text at ~18:1, secondary at ~5.5:1, avoid #a39e98 for essential content (~3.3:1 fails AA)."
 
 ### Iteration Guide
 1. Always use warm neutrals -- Notion's grays have yellow-brown undertones (#f6f5f4, #31302e, #615d59, #a39e98), never blue-gray
