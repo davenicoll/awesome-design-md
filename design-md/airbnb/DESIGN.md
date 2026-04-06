@@ -137,6 +137,8 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 ### Spacing System
 - Base unit: 8px
 - Scale: 2px, 3px, 4px, 6px, 8px, 10px, 11px, 12px, 15px, 16px, 22px, 24px, 32px
+- The 11px and 15px values are optical adjustments for Cereal VF's rounding — they compensate for the font's rounded terminals to achieve visually even spacing. The 22px value is used exclusively for card heading line-height alignment.
+- **Interpolation rule**: Use only defined scale values. The odd values (11px, 15px, 22px) exist for specific optical reasons — do not use them as general-purpose spacing. For general component spacing, prefer the 8px-grid values (8, 16, 24, 32).
 
 ### Grid & Container
 - Full-width header with centered search
