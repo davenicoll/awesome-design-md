@@ -161,7 +161,223 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 
 **Shadow Philosophy**: Airbnb's three-layer shadow system creates a warm, natural lift. Layer 1 (`0px 0px 0px 1px` at 0.02 opacity) is an ultra-subtle border. Layer 2 (`0px 2px 6px` at 0.04) provides soft ambient shadow. Layer 3 (`0px 4px 8px` at 0.1) adds the primary lift. This graduated approach creates shadows that feel like natural light rather than CSS effects.
 
-## 7. Do's and Don'ts
+## 7. Accessibility
+
+Airbnb is a public accommodation platform — a place where anyone, anywhere should feel welcome. Accessibility is both an ethical imperative and a legal requirement under the ADA. Every listing, every search, every booking flow must work for everyone.
+
+### WCAG Target
+
+**WCAG 2.2 AA** compliance across all user-facing surfaces. Airbnb's mission of belonging anywhere extends to users navigating with screen readers, keyboards, switch devices, and voice control.
+
+### Color Contrast Ratios
+
+| Combination | Ratio | Rating | Notes |
+|-------------|-------|--------|-------|
+| `#222222` on `#ffffff` | ~15.4:1 | AAA | Primary text — excellent |
+| `#6a6a6a` on `#ffffff` | ~5.7:1 | AA | Secondary text — passes |
+| `#ff385c` on `#ffffff` | ~3.9:1 | FAILS AA for normal text | Rausch Red must only be used on large text or non-text elements like buttons where the white text on `#222222` carries the readable label |
+| `#929292` on `#ffffff` | ~3.0:1 | FAILS | Disabled state — acceptable per WCAG 1.4.3 exception for inactive components |
+| `#ffffff` on `#222222` | ~15.4:1 | AAA | White on dark surfaces — excellent |
+| `#428bff` on `#ffffff` | ~3.8:1 | Borderline | Legal links should be underlined to not rely solely on color |
+
+### Focus System
+
+All interactive elements receive a visible focus ring: `0 0 0 2px var(--palette-grey1000)` combined with `scale(0.92)`. Focus must be visible on white surfaces and over photography — use a semi-transparent dark backdrop behind the focus ring on image overlays to ensure the ring never disappears against bright listing photos.
+
+### ARIA Patterns
+
+- **Image carousels**: `role="group"`, `aria-roledescription="carousel"`, each slide receives an `aria-label` describing its position and content
+- **Heart/wishlist button**: `aria-label="Save to wishlist"`, `aria-pressed` toggled on save
+- **Search**: `role="search"` on the search landmark
+- **Listing cards**: `role="article"` — each card is a self-contained piece of content
+- **Category pill bar**: `role="tablist"` with `role="tab"` on each pill, `aria-selected` on the active category
+- **Map pins**: `role="button"`, `aria-label` includes listing name and price (e.g., "Modern loft, 120 dollars per night")
+- **Price display**: `aria-label` with full readable text — "150 dollars per night", not "$150"
+
+### Motion Policy
+
+`prefers-reduced-motion` disables:
+- `scale(0.92)` focus animation
+- `translateX` carousel slide transitions
+- Hover shadow transitions on cards and buttons
+
+Image carousels should use instant slide transitions (no slide or fade) when reduced motion is preferred. The experience stays complete — only the movement changes.
+
+### Minimum Touch Targets
+
+Every interactive element meets a 44x44px minimum tap area:
+- Circular nav buttons: at least 44px diameter
+- Heart overlay on listing images: 44x44px tap area (visual icon can be smaller, tap target cannot)
+- Category pills: minimum 44px height with adequate horizontal padding
+- Map pins: 44x44px minimum, even when visually compact
+
+### Screen Reader Guidance
+
+- **Listing images**: Descriptive alt text — "Modern apartment with city view in Tokyo", not "listing photo 1"
+- **Price breakdowns**: `aria-label` on price containers with the full cost structure
+- **Star ratings**: Text equivalent — "4.8 out of 5 stars, 234 reviews", not just the visual stars
+- **Map region**: `aria-label` describing the area — "Map showing listings in Shibuya, Tokyo"
+
+## 8. Interaction Patterns
+
+Every tap, hover, and keypress on Airbnb should feel as warm and intentional as the photography. Interactions are gentle — subtle scale shifts, soft shadow lifts, and unhurried transitions that invite exploration rather than demand speed.
+
+### State Machine
+
+**Primary Dark Button (`#222222`)**
+
+| State | Properties |
+|-------|------------|
+| Default | `background: #222222`, `color: #ffffff`, `border-radius: 8px`, `box-shadow: none` |
+| Hover | `background: var(--accent-bg-error)` (brand red transition) |
+| Active/Pressed | `transform: scale(0.96)` |
+| Focus | `box-shadow: 0 0 0 2px var(--palette-grey1000)`, `transform: scale(0.92)` |
+| Disabled | `background: rgba(0,0,0,0.24)`, `cursor: not-allowed` |
+
+**Circular Nav Button**
+
+| State | Properties |
+|-------|------------|
+| Default | `background: #f2f2f2`, `color: #222222`, `border-radius: 50%` |
+| Hover | `box-shadow: rgba(0,0,0,0.08) 0px 4px 12px`, `transform: translateX(50%)` |
+| Active/Pressed | `border: 4px solid #ffffff`, focus shadow |
+| Focus | `transform: scale(0.92)`, focus ring |
+| Disabled | `opacity: 0.5`, `cursor: not-allowed` |
+
+**Listing Card**
+
+| State | Properties |
+|-------|------------|
+| Default | Three-layer card shadow, `border-radius: 20px` |
+| Hover | Enhanced shadow lift, subtle scale or shadow transition |
+| Active/Pressed | Slight scale-down feedback |
+| Focus | `box-shadow: 0 0 0 2px var(--palette-grey1000)` ring around card |
+
+**Heart/Wishlist Button**
+
+| State | Properties |
+|-------|------------|
+| Default | Transparent background, white heart with dark shadow outline |
+| Hover | Heart fill preview, subtle scale |
+| Active/Pressed (saved) | Filled Rausch Red heart, `aria-pressed="true"` |
+| Focus | Focus ring visible over image backdrop |
+
+**Search Bar**
+
+| State | Properties |
+|-------|------------|
+| Default | White background, full card shadow, pill radius |
+| Hover | Subtle shadow increase |
+| Active/Expanded | Expanded overlay with destination, dates, guests fields |
+| Focus | `var(--palette-bg-primary-error)` background tint + `0 0 0 2px` ring |
+
+**Category Pills**
+
+| State | Properties |
+|-------|------------|
+| Default | `color: #6a6a6a`, no bottom border |
+| Hover | `color: #222222`, subtle bottom border preview |
+| Active/Selected | `color: #222222`, solid bottom border, `aria-selected="true"` |
+| Focus | Focus ring, `transform: scale(0.92)` |
+
+### Transitions
+
+- **Shadows**: `200ms ease` — shadow lifts and drops feel unhurried, like light shifting naturally
+- **Scale transforms**: `150ms ease` — snappy enough to feel responsive, soft enough to feel warm
+- **Carousel slides**: `300ms ease` — a gentle glide between listing photos
+- All transitions respect `prefers-reduced-motion` — when reduced motion is preferred, transitions resolve instantly
+
+### Modals & Overlays
+
+- **Booking modal**: White surface with the three-layer card shadow, focus trap keeps keyboard navigation inside the modal, Escape key closes, `scroll-lock` on the body prevents background scrolling
+- **Search expansion overlay**: Expands from the search bar with a smooth animation, dims the background, focus moves into the first search field
+
+### Error States
+
+- **Error text**: `#c13515` (Error Red) — warm but unmistakably alert
+- **Error border**: Input border changes to `#c13515` on validation failure
+- **Inline messages**: Error description appears directly below the field, 14px Cereal VF weight 400, color `#c13515`
+- Form validation is inline and immediate — no jarring page-level error banners
+
+### Loading States
+
+- **Listing card skeleton**: Gray shimmer placeholder at the image aspect ratio (16:10), followed by text-width skeleton bars for title, description, and price
+- **Shimmer animation**: Gentle left-to-right gradient sweep, respects `prefers-reduced-motion` (static gray when motion is reduced)
+- Skeleton shapes match the final content dimensions to prevent layout shift
+
+### Empty States
+
+- **No results**: Friendly illustration with warm copy — "Try adjusting your search"
+- **Adjusted search suggestion**: CTA button offering to expand dates, remove filters, or zoom out on the map
+- Empty states never feel like dead ends — there's always a next step
+
+## 9. Responsive Behavior
+
+### Breakpoints
+| Name | Width | Key Changes |
+|------|-------|-------------|
+| Mobile Small | <375px | Single column, compact search |
+| Mobile | 375–550px | Standard mobile listing grid |
+| Tablet Small | 550–744px | 2-column listings |
+| Tablet | 744–950px | Search bar expansion |
+| Desktop Small | 950–1128px | 3-column listings |
+| Desktop | 1128–1440px | 4-column grid, full header |
+| Large Desktop | 1440–1920px | 5-column grid |
+| Ultra-wide | >1920px | Maximum grid width |
+
+*Note: Airbnb has 61 detected breakpoints — one of the most granular responsive systems observed, reflecting their obsession with layout at every possible screen size.*
+
+### Fluid Typography
+
+Typography scales fluidly between breakpoints rather than snapping at fixed sizes:
+- **Section heading**: `clamp(1.25rem, 3vw, 1.75rem)` — scales from 20px on mobile to 28px on desktop
+- **Card heading**: `clamp(1rem, 2.5vw, 1.375rem)` — scales from 16px on mobile to 22px on desktop
+
+### Dark Mode Tokens
+
+Airbnb's warm identity translates into dark mode through carefully chosen surfaces — never pure black, always warm and inviting:
+
+| Token | Light | Dark | Notes |
+|-------|-------|------|-------|
+| Background | `#ffffff` | `#1a1a1a` | Warm dark, not pure black |
+| Text | `#222222` | `#e8e8e8` | Soft white, not harsh `#ffffff` |
+| Secondary text | `#6a6a6a` | `#a0a0a0` | Maintains readable contrast |
+| Card surface | `#ffffff` | `#262626` | Subtle lift from background |
+| Rausch Red | `#ff385c` | `#ff385c` | Brand red stays constant |
+| Borders | `rgba(0,0,0,0.02)` | `rgba(255,255,255,0.1)` | Inverted, subtle |
+| Shadows | Three-layer at 0.02/0.04/0.1 | `rgba(0,0,0,0.4)` for all three layers | Deeper shadows on dark surfaces |
+
+Warm white surfaces (`#f2f2f2` nav buttons, secondary backgrounds) become `#262626` in dark mode.
+
+### Container Queries
+
+Listing cards adapt their internal layout based on available space rather than viewport width:
+- `@container (min-width: 300px)`: Image above text (vertical card layout)
+- Below 300px: Side-by-side layout (image left, text right) for compact placements like map sidebars
+
+### Touch Target Sizes
+
+Every interactive element maintains a 44x44px minimum tap area:
+- Circular nav buttons: 44px minimum diameter
+- Heart overlay: 44x44px tap target
+- Category pills: 44px minimum height
+- Search bar fields: generously sized for thumb interaction
+- Listing cards: full-card tap target on mobile
+
+### Collapsing Strategy
+- Listing grid: 5 → 4 → 3 → 2 → 1 columns
+- Search: expanded bar → compact bar → overlay
+- Category pills: horizontal scroll at all sizes
+- Navigation: full header → mobile simplified
+- Map: side panel → overlay/toggle
+
+### Image Behavior
+- Listing photos: carousel with swipe on mobile
+- Responsive image sizing with aspect ratio maintained
+- Heart overlay positioned consistently across sizes
+- Photo quality adjusts based on viewport
+
+## 10. Do's and Don'ts
 
 ### Do
 - Use `#222222` (warm near-black) for text — never pure `#000000`
@@ -182,42 +398,7 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 - Don't introduce additional brand colors beyond the Rausch/Luxe/Plus system
 - Don't override the palette token system — use `--palette-*` variables consistently
 
-## 8. Responsive Behavior
-
-### Breakpoints
-| Name | Width | Key Changes |
-|------|-------|-------------|
-| Mobile Small | <375px | Single column, compact search |
-| Mobile | 375–550px | Standard mobile listing grid |
-| Tablet Small | 550–744px | 2-column listings |
-| Tablet | 744–950px | Search bar expansion |
-| Desktop Small | 950–1128px | 3-column listings |
-| Desktop | 1128–1440px | 4-column grid, full header |
-| Large Desktop | 1440–1920px | 5-column grid |
-| Ultra-wide | >1920px | Maximum grid width |
-
-*Note: Airbnb has 61 detected breakpoints — one of the most granular responsive systems observed, reflecting their obsession with layout at every possible screen size.*
-
-### Touch Targets
-- Circular nav buttons: adequate 50% radius sizing
-- Listing cards: full-card tap target on mobile
-- Search bar: prominently sized for thumb interaction
-- Category pills: horizontally scrollable with generous padding
-
-### Collapsing Strategy
-- Listing grid: 5 → 4 → 3 → 2 → 1 columns
-- Search: expanded bar → compact bar → overlay
-- Category pills: horizontal scroll at all sizes
-- Navigation: full header → mobile simplified
-- Map: side panel → overlay/toggle
-
-### Image Behavior
-- Listing photos: carousel with swipe on mobile
-- Responsive image sizing with aspect ratio maintained
-- Heart overlay positioned consistently across sizes
-- Photo quality adjusts based on viewport
-
-## 9. Agent Prompt Guide
+## 11. Agent Prompt Guide
 
 ### Quick Color Reference
 - Background: Pure White (`#ffffff`)
@@ -235,6 +416,9 @@ What distinguishes Airbnb is its palette-based token system (`--palette-*`) and 
 - "Build category pill bar: horizontal scrollable row. Each pill: 14px Cereal VF weight 600, #222222 text, bottom border on active. Circular prev/next arrows (#f2f2f2 bg, 50% radius)."
 - "Create a CTA button: #222222 background, white text, 8px radius, 16px Cereal VF weight 500, 0px 24px padding. Hover: brand red accent."
 - "Design a heart/wishlist button: transparent background, 50% radius, white heart icon with dark shadow outline."
+
+### Accessibility Prompt
+Ensure image carousels have `role="group"` and `aria-roledescription="carousel"`. All listing images need descriptive alt text (e.g., "Modern apartment with city view in Tokyo"). Heart/wishlist buttons need `aria-pressed`. Price displays need `aria-label` with full text ("150 dollars per night"). All interactive elements must have 44x44px minimum touch targets.
 
 ### Iteration Guide
 1. Start with white — the photography provides all the color
