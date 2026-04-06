@@ -96,6 +96,12 @@ What distinguishes Vercel from other monochrome design systems is its shadow-as-
 - **Three weights, strict roles**: 400 (body/reading), 500 (UI/interactive), 600 (headings/emphasis). No bold (700) except for tiny micro-badges. This narrow weight range creates hierarchy through size and tracking, not weight.
 - **Mono for identity**: Geist Mono in uppercase with `"tnum"` or `"liga"` serves as the "developer console" voice — compact technical labels that connect the marketing site to the product.
 
+### Font Loading Strategy
+- **Display strategy**: `font-display: swap` for Geist Sans and Geist Mono — text renders immediately in the fallback (Arial) and swaps when the custom font loads
+- **Preload**: `<link rel="preload" href="geist-sans.woff2" as="font" type="font/woff2" crossorigin>` for the primary weight (400) to minimize FOUT duration
+- **Fallback alignment**: The fallback stack (`Arial, Apple Color Emoji, Segoe UI Emoji`) is chosen for metric compatibility with Geist — similar x-height and cap-height minimize layout shift on swap
+- **Subset**: Serve Latin subset by default; load extended character sets on demand for internationalized content
+
 ## 4. Component Stylings
 
 ### Buttons
@@ -196,6 +202,19 @@ What distinguishes Vercel from other monochrome design systems is its shadow-as-
 - **Gallery emptiness**: Massive vertical padding between sections (80px–120px+). The white space IS the design — it communicates that Vercel has nothing to prove and nothing to hide.
 - **Compressed text, expanded space**: The aggressive negative letter-spacing on headlines is counterbalanced by generous surrounding whitespace. The text is dense; the space around it is vast.
 - **Section rhythm**: White sections alternate with white sections — there's no color variation between sections. Separation comes from borders (shadow-borders) and spacing alone.
+
+### Density Modes
+
+Vercel's design operates at two density levels depending on content type:
+
+| Mode | Vertical Padding | Grid Gap | Use Case |
+|------|-----------------|----------|----------|
+| Marketing (Default) | 80–120px between sections | 32–40px | Landing pages, hero sections, feature showcases |
+| Product / Data | 16–24px between sections | 8–16px | Dashboards, deployment logs, settings panels, data tables |
+
+When building marketing pages, use the generous gallery spacing documented above. When building product interfaces (dashboards, settings, logs), compress to the tighter scale — the same 8px base unit, but the section gaps shrink from 80px+ to 16–24px. Cards in product contexts use 16px internal padding instead of 24–32px.
+
+**Content-type density rule**: If the primary content is text and imagery (marketing), use wide spacing. If the primary content is data, controls, or status indicators (product), use tight spacing. Never mix densities within a single view.
 
 ### Border Radius Scale
 - Micro (2px): Inline code snippets, small spans
@@ -399,6 +418,16 @@ Vercel's dark mode inverts the canvas philosophy — from white gallery to black
 | Disabled text | `#808080` | `#555555` |
 
 **Shadow technique in dark mode**: The signature shadow-as-border shifts from `rgba(0,0,0,0.08) 0px 0px 0px 1px` to `rgba(255,255,255,0.1) 0px 0px 0px 1px`. Elevation shadows become impractical on dark backgrounds (dark shadow on dark surface is invisible), so dark mode relies more heavily on the border-shadow technique and subtle surface color differentiation (`#111111` cards on `#000000` background) rather than shadow-based depth. Where additional depth is needed, use `rgba(0,0,0,0.5) 0px 0px 0px 1px` — a heavier shadow that reads as a recessed border on dark surfaces.
+
+**Dark Mode Interactive States**
+
+| State | Property | Light Mode | Dark Mode |
+|-------|----------|------------|-----------|
+| Button hover | Background | `var(--ds-gray-1000)` | `#333333` |
+| Card hover | Shadow opacity | 0.08 base | 0.15 base |
+| Link hover | Color | `#0072f5` | `#4da3ff` |
+| Input focus | Border | `hsla(212, 100%, 48%, 1)` | `hsla(212, 100%, 60%, 1)` |
+| Nav active | Background | `#fafafa` | `#1a1a1a` |
 
 ### Container Queries
 

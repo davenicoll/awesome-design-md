@@ -102,6 +102,13 @@ What truly distinguishes Stripe is its shadow system. Rather than the flat or si
 - **Progressive tracking**: Letter-spacing tightens proportionally with size: -1.4px at 56px, -0.96px at 48px, -0.64px at 32px, -0.26px at 26px, normal at 16px and below.
 - **Two-weight simplicity**: Primarily 300 (body and headings) and 400 (UI/buttons). No bold (700) in the primary font -- SourceCodePro uses 500/700 for code contrast.
 
+### Font Loading Strategy
+- **Display strategy**: `font-display: swap` for sohne-var and SourceCodePro — text renders immediately in SF Pro Display / SFMono-Regular fallbacks, swapping when custom fonts load
+- **Preload**: `<link rel="preload" href="sohne-var.woff2" as="font" type="font/woff2" crossorigin>` for the variable font file — a single file covers all weights (300, 400)
+- **Fallback alignment**: SF Pro Display is chosen as the primary fallback because its metrics closely match sohne-var at weight 300 — similar x-height, cap-height, and character width minimize layout shift
+- **OpenType preload**: Since `"ss01"` is embedded in the variable font file, preloading the font ensures the stylistic alternates are available immediately — no secondary font request needed
+- **Subset**: Latin subset served by default; extended Unicode ranges loaded asynchronously
+
 ## 4. Component Stylings
 
 ### Buttons
@@ -209,6 +216,19 @@ What truly distinguishes Stripe is its shadow system. Rather than the flat or si
 - **Precision spacing**: Unlike the vast emptiness of minimalist systems, Stripe uses measured, purposeful whitespace. Every gap is a deliberate typographic choice.
 - **Dense data, generous chrome**: Financial data displays (tables, charts) are tightly packed, but the UI chrome around them is generously spaced. This creates a sense of controlled density -- like a well-organized spreadsheet in a beautiful frame.
 - **Section rhythm**: White sections alternate with dark brand sections (`#1c1e54`), creating a dramatic light/dark cadence that prevents monotony without introducing arbitrary color.
+
+### Density Modes
+
+Stripe operates at two distinct densities reflecting its dual audience — marketing visitors and developer/financial users:
+
+| Mode | Vertical Padding | Grid Gap | Use Case |
+|------|-----------------|----------|----------|
+| Marketing (Default) | 64–96px between sections | 24–32px | Landing pages, product overviews, pricing |
+| Dashboard / Data | 12–20px between sections | 8–12px | Payment tables, API logs, financial dashboards, analytics |
+
+Marketing pages use the measured, purposeful whitespace described above. Dashboard and data contexts compress aggressively — financial data tables use 8px row padding, API response viewers use 12px between entries. The precision spacing philosophy applies at both densities: every gap is deliberate, but the scale shifts.
+
+**Content-type density rule**: Marketing content (text + imagery) gets generous chrome. Data content (tables, charts, logs) gets tight chrome with generous internal line-height (SourceCodePro at 2.00 line-height). Never apply marketing spacing to data views or dashboard spacing to landing pages.
 
 ### Border Radius Scale
 - Micro (1px): Fine-grained elements, subtle rounding
@@ -403,6 +423,16 @@ Stripe already uses `#1c1e54` for dark brand sections. A full dark mode extends 
 | `--shadow-ambient` | `rgba(23,23,23,0.08)` | `rgba(0,0,0,0.3)` |
 
 **Dark mode philosophy**: The dark palette is not an inversion -- it's an extension of the brand dark sections. `#0a0a1a` is deeper than `#1c1e54`, creating a hierarchy where cards (`#1c1e54`) float above the page background. Shadows shift to near-black with a deep blue undertone, maintaining the chromatic depth principle. The purple accent (`#533afd`) remains unchanged -- it has sufficient contrast on both light and dark surfaces.
+
+**Dark Mode Interactive States**
+
+| State | Property | Light Mode | Dark Mode |
+|-------|----------|------------|-----------|
+| Primary button hover | Background | `#4434d4` | `#6a5fff` |
+| Ghost button hover | Background | `rgba(83,58,253,0.05)` | `rgba(83,58,253,0.15)` |
+| Card hover | Shadow | `rgba(50,50,93,0.25)` | `rgba(80,80,140,0.3)` |
+| Link hover | Color | `#4434d4` | `#8a80ff` |
+| Input focus | Border | `1px solid #533afd` | `1px solid #7a70ff` |
 
 ### Container Queries
 
