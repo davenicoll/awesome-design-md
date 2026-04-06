@@ -190,6 +190,7 @@ What makes Notion's visual language distinctive is its border philosophy. Rather
 - Base unit: 8px
 - Scale: 2px, 3px, 4px, 5px, 6px, 7px, 8px, 11px, 12px, 14px, 16px, 24px, 32px
 - Non-rigid organic scale with fractional values (5.6px, 6.4px) for micro-adjustments
+- **Interpolation rule**: Notion's scale is intentionally organic — fractional values are acceptable for optical alignment, but only when derived from the base unit (e.g., 6.4px = 0.8 * 8px). For component spacing use the defined integer values; reserve fractional values for sub-pixel adjustments in icon and text alignment only.
 
 ### Grid & Container
 - Max content width: approximately 1200px

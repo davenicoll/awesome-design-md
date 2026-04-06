@@ -189,7 +189,8 @@ What distinguishes Vercel from other monochrome design systems is its shadow-as-
 ### Spacing System
 - Base unit: 8px
 - Scale: 1px, 2px, 3px, 4px, 5px, 6px, 8px, 10px, 12px, 14px, 16px, 32px, 36px, 40px
-- Notable gap: jumps from 16px to 32px — no 20px or 24px in primary scale
+- Notable gap: jumps from 16px to 32px — no 20px or 24px in primary scale. This is intentional: the leap enforces a binary decision between "component spacing" (16px and below) and "section spacing" (32px and above). Do not interpolate — if 16px feels too tight and 32px too loose, reconsider the component grouping rather than inventing a 24px value.
+- **Interpolation rule**: Use only defined scale values. The spacing scale is a closed set — no ad-hoc values between steps.
 
 ### Grid & Container
 - Max content width: approximately 1200px

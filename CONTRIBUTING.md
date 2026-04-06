@@ -14,7 +14,7 @@ Every DESIGN.md file must follow this structure. Sections 1-11 are mandatory.
 | 2 | Color Palette & Roles | Semantic name + hex + functional role for every color |
 | 3 | Typography Rules | Font families, full hierarchy table (size, weight, line-height, letter-spacing), OpenType features, fluid type scale |
 | 4 | Component Stylings | Buttons, cards, inputs, navigation — with all visual properties and states |
-| 5 | Layout Principles | Spacing scale (with base unit), grid system, container widths, whitespace philosophy |
+| 5 | Layout Principles | Spacing scale (with base unit and interpolation rule), grid system, container widths, whitespace philosophy, density modes |
 | 6 | Depth & Elevation | Shadow system with exact values, surface hierarchy table |
 | 7 | Accessibility | WCAG target level, contrast ratios for all key pairings (with pass/fail), focus system, ARIA patterns, motion policy, minimum touch targets, screen reader guidance |
 | 8 | Interaction Patterns | State machine table (default/hover/active/focus/disabled/loading), transition timing, modals, error states, loading states, empty states |
@@ -39,6 +39,12 @@ This section is not optional. Every DESIGN.md must include:
 - **Fluid typography**: At least display and heading sizes must use `clamp()` values.
 - **Dark mode tokens**: Full color mapping for dark mode (background, text, borders, shadows, surfaces). Every DESIGN.md already has a `preview-dark.html` — the tokens must match.
 - **Touch target sizes**: Specific pixel dimensions, not "comfortable padding" or "adequate spacing".
+
+### Section 5 (Layout Principles) Requirements
+
+- **Spacing scale**: List every value in the scale with the base unit. If the scale has gaps (e.g., jumps from 16px to 32px), explain why. State whether interpolation is allowed or if the scale is a closed set.
+- **Interpolation rule**: Explicitly state whether agents should only use defined scale values or may derive intermediate values. This prevents agents from inventing ad-hoc spacing.
+- **Density modes**: Define at least two density modes (e.g., marketing/editorial vs. product/data). Each mode must specify vertical padding range, grid gap range, and use cases. State the rule for when to apply each mode.
 
 ## How to Contribute
 
@@ -71,6 +77,9 @@ Before submitting a PR, verify:
 - [ ] ARIA patterns specified for all components
 - [ ] `prefers-reduced-motion` policy documented
 - [ ] Touch targets specified in pixels (not "comfortable" or "adequate")
+- [ ] Spacing scale includes interpolation rule (closed set or derivable)
+- [ ] Density modes defined (at least two: marketing vs. product/data)
+- [ ] Spacing gaps explained (no unexplained jumps in the scale)
 - [ ] Fluid typography uses `clamp()` for display/heading sizes
 - [ ] Dark mode tokens documented
 - [ ] Agent Prompt Guide includes accessibility prompt

@@ -203,7 +203,8 @@ What truly distinguishes Stripe is its shadow system. Rather than the flat or si
 ### Spacing System
 - Base unit: 8px
 - Scale: 1px, 2px, 4px, 6px, 8px, 10px, 11px, 12px, 14px, 16px, 18px, 20px
-- Notable: The scale is dense at the small end (every 2px from 4-12), reflecting Stripe's precision-oriented UI for financial data
+- Notable: The scale is dense at the small end (every 2px from 4-12), reflecting Stripe's precision-oriented UI for financial data. The scale caps at 20px for component spacing — section-level gaps (32px+) are defined in the density modes below, not in this scale.
+- **Interpolation rule**: Use only defined scale values. For financial data tables, the dense 4-12px range provides sub-8px precision. For marketing sections, jump to the density mode values. Do not invent values between 20px and the section spacing range.
 
 ### Grid & Container
 - Max content width: approximately 1080px
